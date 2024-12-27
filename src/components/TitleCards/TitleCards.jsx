@@ -1,23 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './TitleCards.css';
-import { Link } from 'react-router-dom';
 
-const TitleCards = ({ title, category }) => {
+const TitleCards = ({ title }) => {
   const [apiData, setApiData] = useState([]);
   const cardsRef = useRef();
-  const TMDB_TOKEN = process.env.REACT_APP_TMDB_API_TOKEN;
 
-  // Ensure the TMDB token exists
-  if (!TMDB_TOKEN) {
-    console.error("TMDB API token is missing. Please add it to your environment variables.");
-  }
+  const API_KEY = process.env.REACT_APP_API_KEY;
 
   const options = {
     method: 'GET',
     headers: {
       accept: 'application/json',
-      Authorization: `Bearer ${TMDB_TOKEN}`,
-    },
+      Authorization: `Bearer ${API_KEY}`
+    }
   };
 
   const handleWheel = (event) => {
@@ -28,41 +23,49 @@ const TitleCards = ({ title, category }) => {
   };
 
   useEffect(() => {
-    // Fetch data from TMDB API
-    fetch(
-      `https://api.themoviedb.org/3/movie/${category ? category : "now_playing"}?language=en-US&page=1`,
-      options
-    )
-      .then((res) => res.json())
-      .then((res) => setApiData(res.results))
-      .catch((err) => console.error("Error fetching data from TMDB:", err));
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch(
+          'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1',
+          options
+        );
+        const data = await response.json();
+        setApiData(data.results || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
 
-    // Add scroll event listener
+    fetchMovies();
+
     const currentRef = cardsRef.current;
     if (currentRef) {
       currentRef.addEventListener('wheel', handleWheel);
     }
 
-    // Cleanup event listener on unmount
     return () => {
       if (currentRef) {
         currentRef.removeEventListener('wheel', handleWheel);
       }
     };
-  }, [category]); // Include category as a dependency
+  }, []);
 
   return (
-    <div className="titlecards">
-      <h2>{title ? title : "Popular on Netflix"}</h2>
+    <div className='titlecards'>
+      <h2>{title || 'Popular on Netflix'}</h2>
       <div className="card-list" ref={cardsRef}>
         {apiData.map((card, index) => (
-          <Link to={`/player/${card.id}`} className="card" key={index}>
-            <img
-              src={`https://image.tmdb.org/t/p/w500${card.backdrop_path}`}
-              alt={card.original_title}
-            />
+          <div className="card" key={index}>
+            {card.backdrop_path ? (
+              <img
+                src={`https://image.tmdb.org/t/p/w500${card.backdrop_path}`}
+                alt={card.original_title}
+              />
+            ) : (
+              <div className="placeholder">No Image Available</div>
+            )}
             <p>{card.original_title}</p>
-          </Link>
+          </div>
         ))}
       </div>
     </div>
