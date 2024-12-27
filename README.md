@@ -19,6 +19,7 @@ Netflix Clone is a web application inspired by Netflix that provides a seamless 
 
 ## 📸 Screenshots
 
+
 ![Screenshot 2024-12-27 192544](https://github.com/user-attachments/assets/da3680c2-4786-4b18-9a42-e5832ed413eb)
 ![Screenshot 2024-12-27 192603](https://github.com/user-attachments/assets/cf76c666-9e64-4ca3-a939-9f183c5744ea)
 
